@@ -82,7 +82,7 @@ func populateSliceFromUserInput() {
 	//validate columns
 	validateColumns()
 
-	//validate 3*3 columns
+	//validate 3*3 square
 	validateSquares()
 }
 
