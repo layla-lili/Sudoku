@@ -25,10 +25,18 @@ var sudoku = [9][9]int{
 The draw func will print all rows of the sudoku board.
 */
 func draw() {
+	//loop through each row
 	for _, row := range sudoku {
-		fmt.Println(row)
+		//loop through each cell of a row
+		for _, cell := range row {
+			//print cell value
+			fmt.Print(cell)
+			fmt.Print(" ")
+		}
+		fmt.Println()
 	}
 }
+
 /*
 The populateSliceFromUserInput func will take the arguments passed to the program,
 validate them and populate the sudoku array with the unsolved puzzle.
@@ -171,8 +179,9 @@ func validateSquares() bool {
 func solve() {
 	populateSliceFromUserInput()
 	draw()
-	if sudokuSolver(0,0) == true {
+	if sudokuSolver(0, 0) {
 		fmt.Println("solution found!")
+		draw()
 	} else {
 		fmt.Println("no solution found!")
 	}
@@ -226,7 +235,7 @@ func sudokuSolver(x int, y int) bool {
 	if y == 9 {
 		return true
 	}
-	if sudoku[y][x] != '.' {
+	if sudoku[y][x] != 0 {
 		return sudokuSolver(next(x, y))
 	} else {
 		for i := range [9]int{} {
@@ -236,12 +245,12 @@ func sudokuSolver(x int, y int) bool {
 				if sudokuSolver(next(x, y)) {
 					return true
 				}
-				sudoku[y][x] = '.'
+				sudoku[y][x] = 0
 			}
 		}
 		return false
 	}
-	
+
 }
 
 func main() {
