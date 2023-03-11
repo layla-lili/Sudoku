@@ -22,6 +22,14 @@ var sudoku = [9][9]int{
 }
 
 /*
+The draw func will print all rows of the sudoku board.
+*/
+func draw() {
+	for _, row := range sudoku {
+		fmt.Println(row)
+	}
+}
+/*
 The populateSliceFromUserInput func will take the arguments passed to the program,
 validate them and populate the sudoku array with the unsolved puzzle.
 
@@ -160,18 +168,80 @@ func validateSquares() bool {
 	return true
 }
 
-/*
-The draw func will print all rows of the sudoku board.
-*/
-func draw() {
-	for _, row := range sudoku {
-		fmt.Println(row)
-	}
-}
-
 func solve() {
 	populateSliceFromUserInput()
 	draw()
+	if sudokuSolver(0,0) == true {
+		fmt.Println("solution found!")
+	} else {
+		fmt.Println("no solution found!")
+	}
+}
+
+func canPut(x int, y int, value int) bool {
+	return !alreadyInVertical(x, y, value) &&
+		!alreadyInHorizontal(x, y, value) &&
+		!alreadyInSquare(x, y, value)
+}
+
+func alreadyInVertical(x int, y int, value int) bool {
+	for i := range [9]int{} {
+		if sudoku[i][x] == value {
+			return true
+		}
+	}
+	return false
+}
+
+func alreadyInHorizontal(x int, y int, value int) bool {
+	for i := range [9]int{} {
+		if sudoku[y][i] == value {
+			return true
+		}
+	}
+	return false
+}
+
+func alreadyInSquare(x int, y int, value int) bool {
+	sx, sy := int(x/3)*3, int(y/3)*3
+	for dy := range [3]int{} {
+		for dx := range [3]int{} {
+			if sudoku[sy+dy][sx+dx] == value {
+				return true
+			}
+		}
+	}
+	return false
+}
+
+func next(x int, y int) (int, int) {
+	nextX, nextY := (x+1)%9, y
+	if nextX == 0 {
+		nextY = y + 1
+	}
+	return nextX, nextY
+}
+
+func sudokuSolver(x int, y int) bool {
+	if y == 9 {
+		return true
+	}
+	if sudoku[y][x] != '.' {
+		return sudokuSolver(next(x, y))
+	} else {
+		for i := range [9]int{} {
+			var v = i + 1
+			if canPut(x, y, v) {
+				sudoku[y][x] = v
+				if sudokuSolver(next(x, y)) {
+					return true
+				}
+				sudoku[y][x] = '.'
+			}
+		}
+		return false
+	}
+	
 }
 
 func main() {
