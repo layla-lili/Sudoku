@@ -51,18 +51,20 @@ validation conditions:
 ***
 in case validation fails program will panic and exit
 */
-func populateSliceFromUserInput() {
+func populateSliceFromUserInput() bool {
 	//store the passed arguments in an slice.
 	args := os.Args[1:]
 	//validate args length to be 9
 	if len(args) != 9 {
-		panic("Error: Missing arguments")
+		// panic("Error: Missing arguments")
+		return false
 	}
 	//loop through args and validate each c. case validation false panic, else populate position and continue.
 	for i, arg := range args {
 		//check arg to be length of 9, else panic
 		if len(arg) != 9 {
-			panic("Error: Argument missing cells")
+			// panic("Error: Argument missing cells")
+			return false
 		}
 		//loop through each arg c
 		for j, c := range arg {
@@ -77,21 +79,16 @@ func populateSliceFromUserInput() {
 				sudoku[i][j] = nb
 			} else {
 				//any other input will panic
-				panic("Error: Invalid input")
+				// panic("Error: Invalid input")
+				return false
 			}
 		}
 	}
-
 	//after population done, validate sudoku board
-
-	//validate rows
-	validateRows()
-
-	//validate columns
-	validateColumns()
-
-	//validate 3*3 square
-	validateSquares()
+	if !validateRows() || !validateColumns() || !validateSquares() {
+		return false
+	}
+	return true
 }
 
 /*
@@ -113,7 +110,8 @@ func validateRows() bool {
 			//if val is already occured
 			//panic and exit
 			if _, ok := row[val]; ok {
-				panic("A value has occured more than once in a row")
+				// panic("A value has occured more than once in a row")
+				return false
 			}
 			//else set row of key value to true
 			row[val] = true
@@ -142,7 +140,8 @@ func validateColumns() bool {
 			//if val is already occured
 			//panic and exit
 			if _, ok := col[val]; ok {
-				panic("A value has occured more than once in a column")
+				// panic("A value has occured more than once in a column")
+				return false
 			}
 			//else set col of key value to true
 			col[val] = true
@@ -176,33 +175,43 @@ func validateSquares() bool {
 	return true
 }
 
-/*code starts by populating a slice from user input
- The code then draws the board and checks if there is a solution to the puzzle.
- If there is, it prints "solution found!"
- and stops drawing; otherwise, it prints "no solution found! */
+/*
+code starts by populating a slice from user input
+
+	The code then draws the board and checks if there is a solution to the puzzle.
+	If there is, it prints "solution found!"
+	and stops drawing; otherwise, it prints "no solution found!
+*/
 func solve() {
-	populateSliceFromUserInput()
-	draw()
-	if sudokuSolver(0, 0) {
-		fmt.Println("solution found!")
-		draw()
+	if populateSliceFromUserInput() {
+		// draw()
+		if sudokuSolver(0, 0) {
+			// fmt.Println("solution found!")
+			draw()
+		} else {
+			fmt.Println("no solution found!")
+		}
 	} else {
-		fmt.Println("no solution found!")
+		fmt.Println("Error")
 	}
 }
+
 /* The code will return true if the x and y coordinates are not already in a vertical, horizontal or square position.
+ 
 */
 func canPut(x int, y int, value int) bool {
 	return !alreadyInVertical(x, y, value) &&
 		!alreadyInHorizontal(x, y, value) &&
 		!alreadyInSquare(x, y, value)
 }
-/* The code is trying to check if the value is in a Vertical column.
- The code does this by iterating through all of the rows and checking if the value is in that row.
- If it is, then it returns true; otherwise, it returns false.
- The code checks to see if the value is already in the Vertical position.
- The code iterates through a range of integers and checks each one against the value.
- */
+
+/*
+The code is trying to check if the value is in a Vertical column.
+The code does this by iterating through all of the rows and checking if the value is in that row.
+If it is, then it returns true; otherwise, it returns false.
+The code checks to see if the value is already in the Vertical position.
+The code iterates through a range of integers and checks each one against the value.
+*/
 func alreadyInVertical(x int, y int, value int) bool {
 	for i := range [9]int{} {
 		if sudoku[i][x] == value {
@@ -212,12 +221,13 @@ func alreadyInVertical(x int, y int, value int) bool {
 	return false
 }
 
-/* The code is trying to check if the value is in a horizontal row.
- The code does this by iterating through all of the rows and checking if the value is in that row.
- If it is, then it returns true; otherwise, it returns false.
- The code checks to see if the value is already in the horizontal position.
- The code iterates through a range of integers and checks each one against the value.
- */
+/*
+The code is trying to check if the value is in a horizontal row.
+The code does this by iterating through all of the rows and checking if the value is in that row.
+If it is, then it returns true; otherwise, it returns false.
+The code checks to see if the value is already in the horizontal position.
+The code iterates through a range of integers and checks each one against the value.
+*/
 func alreadyInHorizontal(x int, y int, value int) bool {
 	for i := range [9]int{} {
 		if sudoku[y][i] == value {
@@ -226,15 +236,16 @@ func alreadyInHorizontal(x int, y int, value int) bool {
 	}
 	return false
 }
-//The code is used to check if the value of a given square is already in the range of values for that row and column.
-// first parameter x represents the row number, 
-//while the second parameter  y represents the column number.
+
+// The code is used to check if the value of a given square is already in the range of values for that row and column.
+// first parameter x represents the row number,
+// while the second parameter  y represents the column number.
 func alreadyInSquare(x int, y int, value int) bool {
 	//"sx", it's referring to how many spaces over from our starting point on one side (in this case 3).
 	//"sy", it's referring to how many spaces over from our starting point on one side (in this case 3).
 	sx, sy := int(x/3)*3, int(y/3)*3
 	//checking if the x and y coordinates are within 3 squares of each other.
-	//also checks if any of the values in the list have been duplicated 
+	//also checks if any of the values in the list have been duplicated
 	//dy refers to how many times through all possible combinations of numbers do we want to iterate?
 	for dy := range [3]int{} {
 		for dx := range [3]int{} {
@@ -245,7 +256,8 @@ func alreadyInSquare(x int, y int, value int) bool {
 	}
 	return false
 }
-//calculates the nextX and nextY values by adding 1 to x until it reaches 9, then dividing y by 9
+
+// calculates the nextX and nextY values by adding 1 to x until it reaches 9, then dividing y by 9
 func next(x int, y int) (int, int) {
 	nextX, nextY := (x+1)%9, y
 
@@ -256,7 +268,7 @@ func next(x int, y int) (int, int) {
 	return nextX, nextY
 }
 
-//The code is a function that takes two integers as parameters and returns true if the puzzle can be solved, false otherwise.
+// The code is a function that takes two integers as parameters and returns true if the puzzle can be solved, false otherwise.
 func sudokuSolver(x int, y int) bool {
 	if y == 9 {
 		return true
